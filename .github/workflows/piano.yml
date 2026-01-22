@@ -35,6 +35,12 @@ jobs:
           INPUT_AMOUNT: ${{ github.event.inputs.amount }}
           INPUT_UNIT: ${{ github.event.inputs.unit }}
         run: |
+          # Validate input: must be > 0
+          if ! echo "$INPUT_AMOUNT > 0" | bc -l | grep -q 1; then
+            echo "❌ Practice amount must be greater than 0"
+            exit 1
+          fi
+
           # Convert minutes to hours if necessary
           if [ "$INPUT_UNIT" = "Minutes" ]; then
             # Using bc for floating point calculation
