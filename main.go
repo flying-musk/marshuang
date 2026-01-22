@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
-type Activity struct {
-	TotalKM    float64 `json:"total_km"`
+type Piano struct {
+	PianoHours float64 `json:"piano_hours"`
 	LastUpdate string  `json:"last_update"`
 }
 
@@ -19,15 +20,34 @@ func main() {
 		return
 	}
 
-	var data Activity
-	json.Unmarshal(file, &data)
+	var data Piano
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		fmt.Println("Error unmarshaling JSON:", err)
+		return
+	}
 
-	dailyKM := 5.0
-	data.TotalKM += dailyKM
+	pianoHoursEnv := os.Getenv("PIANO_HOURS")
+	if pianoHoursEnv == "" {
+		fmt.Println("No input received for PIANO_HOURS, skipping update.")
+	} else {
+		hours, err := strconv.ParseFloat(pianoHoursEnv, 64)
+		if err != nil {
+			fmt.Println("Invalid input for hours:", err)
+		} else if hours > 0 {
+			data.PianoHours += hours
+			fmt.Printf("🎹 Piano Update: +%.1f hrs, Total: %.1f hrs\n", hours, data.PianoHours)
+		}
+	}
+
 	data.LastUpdate = time.Now().Format("2006-01-02 15:04:05")
 
 	updatedData, _ := json.MarshalIndent(data, "", "  ")
-	_ = os.WriteFile("data.json", updatedData, 0644)
+	err = os.WriteFile("data.json", updatedData, 0644)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
 
-	fmt.Printf("🚀 Successfully updated! Current total distance: %.2f KM\n", data.TotalKM)
+	fmt.Println("Successfully saved data to data.json")
 }

@@ -1,0 +1,54 @@
+name: Piano Practice Tracker
+
+on:
+  workflow_dispatch:
+    inputs:
+      amount:
+        description: 'Practice amount (number)'
+        required: true
+        default: '60'
+      unit:
+        description: 'Select unit'
+        required: true
+        type: choice
+        options:
+          - Minutes
+          - Hours
+        default: 'Minutes'
+
+jobs:
+  update-log:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Calculate and Run Update
+        env:
+          INPUT_AMOUNT: ${{ github.event.inputs.amount }}
+          INPUT_UNIT: ${{ github.event.inputs.unit }}
+        run: |
+          # Convert minutes to hours if necessary
+          if [ "$INPUT_UNIT" = "Minutes" ]; then
+            # Using bc for floating point calculation
+            CALCULATED_HOURS=$(echo "scale=2; $INPUT_AMOUNT / 60" | bc)
+          else
+            CALCULATED_HOURS=$INPUT_AMOUNT
+          fi
+          
+          echo "Processing update for $CALCULATED_HOURS hours..."
+          PIANO_HOURS=$CALCULATED_HOURS go run main.go
+
+      - name: Commit and Push to Main
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .
+          branch: main
+          commit-message: "🎹 Practice Log: +${{ github.event.inputs.amount }} ${{ github.event.inputs.unit }}"
