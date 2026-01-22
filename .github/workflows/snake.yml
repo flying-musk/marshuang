@@ -3,14 +3,16 @@ name: Generate Snake
 on:
   # schedule:
   #   - cron: "0 0 * * 1-5"
-  push:
-    paths:
-      - 'data.json' # Trigger only when data.json is modified and pushed
+  workflow_run:
+    workflows: ["Piano Practice Tracker"]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   generate:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v3
       - uses: Platane/snk@v3
