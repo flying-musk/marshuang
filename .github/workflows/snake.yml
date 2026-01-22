@@ -1,8 +1,11 @@
 name: Generate Snake
 
 on:
-  schedule:
-    - cron: "0 0 * * 1-5"
+  # schedule:
+  #   - cron: "0 0 * * 1-5"
+  push:
+    paths:
+      - 'data.json' # Trigger only when data.json is modified and pushed
   workflow_dispatch:
 
 jobs:
