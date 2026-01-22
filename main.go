@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -14,9 +15,10 @@ type Piano struct {
 }
 
 func main() {
+	// 1. Read existing data
 	file, err := os.ReadFile("data.json")
 	if err != nil {
-		fmt.Println("Failed to read file, please ensure data.json exists:", err)
+		fmt.Printf("Error: Failed to read data.json: %v\n", err)
 		return
 	}
 
@@ -27,27 +29,69 @@ func main() {
 		return
 	}
 
+	// 2. Early Return Logic
 	pianoHoursEnv := os.Getenv("PIANO_HOURS")
+
 	if pianoHoursEnv == "" {
 		fmt.Println("No input received for PIANO_HOURS, skipping update.")
-	} else {
-		hours, err := strconv.ParseFloat(pianoHoursEnv, 64)
-		if err != nil {
-			fmt.Println("Invalid input for hours:", err)
-		} else if hours > 0 {
-			data.PianoHours += hours
-			fmt.Printf("🎹 Piano Update: +%.1f hrs, Total: %.1f hrs\n", hours, data.PianoHours)
-		}
-	}
-
-	data.LastUpdate = time.Now().Format("2006-01-02 15:04:05")
-
-	updatedData, _ := json.MarshalIndent(data, "", "  ")
-	err = os.WriteFile("data.json", updatedData, 0644)
-	if err != nil {
-		fmt.Println("Error writing to file:", err)
 		return
 	}
 
-	fmt.Println("Successfully saved data to data.json")
+	hours, err := strconv.ParseFloat(pianoHoursEnv, 64)
+	if err != nil || hours <= 0 {
+		fmt.Printf("Invalid or zero input (%s), skipping update.\n", pianoHoursEnv)
+		return
+	}
+
+	// 3. Update Data Object
+	data.PianoHours += hours
+	data.LastUpdate = time.Now().Format("2006-01-02 15:04:05")
+	fmt.Printf("🎹 Success: +%.2f hrs | New Total: %.2f hrs\n", hours, data.PianoHours)
+
+	// 4. Save to data.json
+	updatedJSON, _ := json.MarshalIndent(data, "", "  ")
+	os.WriteFile("data.json", updatedJSON, 0644)
+
+	// 5. Update README.md
+	updateREADME(data.PianoHours)
+}
+
+func updateREADME(totalHours float64) {
+	readmePath := "README.md"
+	content, err := os.ReadFile(readmePath)
+	if err != nil {
+		fmt.Printf("Error: Cannot read README: %v\n", err)
+		return
+	}
+
+	text := string(content)
+
+	// Regex breakdown:
+	// ### 🎹 My total piano hours: -> Literal text match
+	// \s* -> Matches 0 or more whitespace characters
+	// \d+                         -> Matches 1 or more digits (integer part)
+	// (\.\d+)?                    -> Optional group: a dot followed by 1 or more digits (decimal part)
+	// \s* -> Optional whitespace before unit
+	// hrs                         -> Literal unit match
+	pattern := `### 🎹 My total piano hours:\s*\d+(\.\d+)?\s*hrs`
+	re := regexp.MustCompile(pattern)
+
+	// Guard clause: Check if the target line exists before proceeding
+	if !re.MatchString(text) {
+		fmt.Println("Warning: Could not find piano hours line in README.md")
+		return
+	}
+
+	// Format the new total hours to 2 decimal places
+	newHoursStr := fmt.Sprintf("%.2f", totalHours)
+	newLine := fmt.Sprintf("### 🎹 My total piano hours: %shrs", newHoursStr)
+
+	// Perform the string replacement globally in the text
+	newText := re.ReplaceAllString(text, newLine)
+
+	// Write the updated content back to README.md
+	err = os.WriteFile(readmePath, []byte(newText), 0644)
+	if err == nil {
+		fmt.Printf("Success: README.md updated to %s hrs! 🎉\n", newHoursStr)
+	}
 }
