@@ -48,17 +48,17 @@ I am a software engineer and I love piano.
   <picture>
     <source
       media="(prefers-color-scheme: dark)"
-      srcset="https://github-readme-stats-flyingmusks-projects.vercel.app/api/top-langs/?username=flying-musk&theme=dark&layout=compact&langs_count=8&card_width=320&hide_border=true"
+      srcset="https://github-stats-extended.vercel.app/api/top-langs/?username=flying-musk&theme=github_dark&layout=compact&langs_count=8&card_width=320&hide_border=true"
     />
     <source
       media="(prefers-color-scheme: light)"
-      srcset="https://github-readme-stats-flyingmusks-projects.vercel.app/api/top-langs/?username=flying-musk&layout=compact&langs_count=8&card_width=320&hide_border=true"
+      srcset="https://github-stats-extended.vercel.app/api/top-langs/?username=flying-musk&theme=default&layout=compact&langs_count=8&card_width=320&hide_border=true"
     />
     <img
       alt="Top Languages"
       height="200"
       align="center"
-      src="https://github-readme-stats-flyingmusks-projects.vercel.app/api/top-langs/?username=flying-musk&layout=compact&langs_count=8&card_width=320&hide_border=true"
+      src="https://github-stats-extended.vercel.app/api/top-langs/?username=flying-musk&theme=default&layout=compact&langs_count=8&card_width=320&hide_border=true"
     />
   </picture>
 </a>
