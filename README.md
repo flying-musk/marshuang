@@ -22,7 +22,7 @@ I am a software engineer and I love piano.
 
 > "One hour of piano, and one hour of cloud research every day builds my engineer's soul."
 
-### 🎹 My total piano hours: 18.82hrs
+### 🎹 My total piano hours: 19.82hrs
 
 ### Piano dedications in the last year
 <a href="https://www.linkedin.com/in/mars-huang-72b9a825b/">
